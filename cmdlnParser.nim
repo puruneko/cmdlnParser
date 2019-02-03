@@ -7,6 +7,11 @@ import typetraits
 import macros
 
 type
+  CmdOptions = enum
+    BAN_MULTIPLE,
+    LIMIT_MULTIPLE,
+    USE_MULTIPLE_SEPARATOR
+
   CmdParam*[T] = object
     keyword: string
     description: string

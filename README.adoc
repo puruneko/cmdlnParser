@@ -1,9 +1,10 @@
+CAUTION: **Under construction**
 
 = cmdlnParser
 
 **cmdlnParser** is a tool to make command-line-parameter processing convinient for Nim!
 
-== what can do?
+== Features
 
 The concept of this tool is to simplify bothersome command-line-prameter setting, checking and processing.
 
@@ -23,7 +24,9 @@ By creating parameter setting object, you can complete to define what parameters
 * function attentive to needs
 ** support various parameter patterns
 *** no prefix parameter (like `name.exe param1 param2 ...`)
-**** **[WARNING]** in this case, type checking is done in the order in which they are set
++
+WARNING: in this case, type checking is done in the order in which they are set.
+
 *** no separator parameter (like `-n50`)
 ** each parameter can have default value
 *** you can select that parameter has default value or not
@@ -47,7 +50,7 @@ To process command-line-parameters, you just call `parse` procesure with setting
 ** by linking parameter keyword and return value (by settings), returns arranged tuple
 *** it means that the returned values do not set in the order they are located in calling procedure but do set in order by link settings
 
-== sample
+== Sample
 
 If you let your program process with some command-line-parameters, try this tool with simple steps.
 
@@ -108,13 +111,16 @@ and this option must be defined only once.
 
 === step2
 Commit your design by creating object of `CmdParam` object using `newCmdParam` procedure. +
-[CAUTION] object must be defined as `ver` definition.
+
+CAUTION: object must be defined as `ver` definition.
+
 [source, nim]
 ----
 var cmdParser = newCmdParser(
-  newCmdParam("path"),
+  newCmdParam("path", options=BAN_MULTIPLE),
   newCmdParam("search"),
-  newCmdParam("regex", false)
+  newCmdParam("keyword"),
+  newCmdParam("regex", false, options=BAN_MULTIPLE)
 )
 ----
 
@@ -136,10 +142,11 @@ var cmdParser = newCmdParser(
   results=("path",["search","keyword"],"regex"),
   newCmdParam("path", options=BAN_MULTIPLE),
   newCmdParam("search"),
+  newCmdParam("keyword"),
   newCmdParam("regex", false, options=BAN_MULTIPLE)
 )
 ----
-NOTE: `prefix` and `separator` can be also defined at this `newCmdParser` procedure (`pre` option and `sep` option)
+NOTE: `prefix` and `separator` can be also defined at this `newCmdParser` procedure (`pre` option and `sep` option).
 
 === step4
 Call `parse` procedure which `CmdParser` object has (as correctly, set it as the first argument). +
@@ -161,7 +168,8 @@ you can see +
 
 [source, nim]
 ----
-import cmdparser
+import os
+import cmdlnparser
 
 var cmdParser = newCmdParser(
   results=("path",["search","keyword"],"regex"),
@@ -174,6 +182,11 @@ let res = cmdParser.parse(cmdlineParams)
 ----
 
 
-== non-standard required library
+== Non-standard required library
 
 nothing for now
+
+== TODO
+
+* [ ] improve type estimation
+* [x] corresponds to boolean type
