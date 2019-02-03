@@ -2,65 +2,63 @@ CAUTION: **Under construction**
 
 = cmdlnParser
 
-**cmdlnParser** is a tool to make command-line-parameter processing convinient for Nim!
+**cmdlnParser** is a tool to make command-line-parameter processing easily for Nim!
 
 == Features
 
-The concept of this tool is to simplify bothersome command-line-prameter setting, checking and processing.
+The concept of this tool is to simplify bothersome command-line-parameter setting, checking and processing.
 
-=== 1. simple setting
+=== 1. simple settings
 
-By creating parameter setting object, you can complete to define what parameters this program has and how to process each parameters.
+By creating parameter setting object, you can complete to define what parameters this program has and how to process each parameter.
 
-* flexible parameter setting
-** you just ok to code default value or processing procesure
-** you can create original parameter format
-*** support `prefix` and `separator` format according to " `{prefix}{keyword}{separator}{input}`
+* flexible parameter settings
+** You should just code default value or processing procedure.
+** You can create original parameter format.
+*** This tool supports `prefix` and `separator` format according to " `{prefix}{keyword}{separator}{input}`.
 *** ex: `--path:input` " , `/p input` etc.
 * automatic detection of types
-** judge parameter type as string if you set only parameter keyword
-** you do not have to specify any generics type like `...[type](...)`
-** including original types (but must code procesure of converting)
-* function attentive to needs
-** support various parameter patterns
+** You do not have to specify any generics type like `...[type](...)`.
+** The above explain contains original types (but must code procedure of converting).
+** This tool judges parameter type as string if you set only parameter keyword.
+* the setting function attentive to needs
+** This tool supports various parameter patterns.
 *** no prefix parameter (like `name.exe param1 param2 ...`)
 +
 WARNING: in this case, type checking is done in the order in which they are set.
 
 *** no separator parameter (like `-n50`)
-** each parameter can have default value
-*** you can select that parameter has default value or not
-** multiple parameter keyword
-*** you can let defferent parameter keywords have the same meaning
-** return value linking
-*** you can arrange final output values by setting relationship between keyword and output
-** each parameter has own description
-*** you can see the help documentation by inputting parameter like `-h`
+*** default value
+**** You can select parameters that have default value or not
+*** multiple parameter keyword
+**** You can let different parameter keywords have the same meaning.
+** Each parameter has own description.
+*** You can see the help documentation by inputting parameter like `-h`.
 
-> now is on the way...
+> On going...
 
 === 2. wrap troublesome work
 
-To process command-line-parameters, you just call `parse` procesure with setting object.
+To process command-line-parameters, you just call `parse` procedure with setting object.
 
-* wrap various checking
+* This procedure wraps various checking.
 ** check number of parameters
 ** check type of parameters
-* return arranged tuple
-** by linking parameter keyword and return value (by settings), returns arranged tuple
-*** it means that the returned values do not set in the order they are located in calling procedure but do set in order by link settings
+* This procedure returns arranged tuple.
+** By linking parameter keyword and return value (by settings), this tool returns arranged tuple.
+*** It means that the returned values do not set in the order they are located in calling procedure, but set in order by link settings.
 
 == Sample
 
 If you let your program process with some command-line-parameters, try this tool with simple steps.
 
-> In this case, it is considerd that you will create a program to search the target directory.
+> In this sample, it is considered that you will create a program to search the target directory.
 
 === step1
-You need to design what parameters you need, like example below:
+Design parameters you need such as example below.
 
 --path: ::
-This defines target path.
+This option defines target path.
 +
 [options="header" cols="1,>1"]
 |====
@@ -72,8 +70,8 @@ This defines target path.
 |====
 
 --search: ::
-This defines search strings, +
-and this keyword will be able to be set any number.
+This option defines search strings. +
+This option will be set any number.
 +
 [options="header" cols="1,>1"]
 |====
@@ -85,7 +83,7 @@ and this keyword will be able to be set any number.
 |====
 
 --keyword: ::
-This is an alias of search option.
+This option is an alias of search option.
 +
 [options="header" cols="1,>1"]
 |====
@@ -97,8 +95,8 @@ This is an alias of search option.
 |====
 
 --regex: ::
-This defines to use regex or not. +
-and this option must be defined only once.
+This option defines to use regex or not. +
+This option must be defined only once.
 +
 [options="header" cols="1,>1"]
 |====
@@ -110,23 +108,23 @@ and this option must be defined only once.
 |====
 
 === step2
-Commit your design by creating object of `CmdParam` object using `newCmdParam` procedure. +
+Commit your design by creating object of `CmdlnParam` object using `newCmdlnParam` procedure. +
 
-CAUTION: object must be defined as `ver` definition.
+CAUTION: object must be defined as `var` definition.
 
 [source, nim]
 ----
-var cmdParser = newCmdParser(
-  newCmdParam("path", options=BAN_MULTIPLE),
-  newCmdParam("search"),
-  newCmdParam("keyword"),
-  newCmdParam("regex", false, options=BAN_MULTIPLE)
+var cmdlnParser = newCmdlnParser(
+  newCmdlnParam("path", options=BAN_MULTIPLE),
+  newCmdlnParam("search"),
+  newCmdlnParam("keyword"),
+  newCmdlnParam("regex", false, options=BAN_MULTIPLE)
 )
 ----
 
 === step3
 Define relationship between options and result values. +
-In this case, `search` option and `keyword` option should be returned as the same reuslt value. +
+In this sample, `search` option and `keyword` option should be returned as the same result value. +
 Also, the order of result values can be defined at the same time.
 [options="header" cols="1,>1"]
 |====
@@ -135,22 +133,22 @@ Also, the order of result values can be defined at the same time.
 |second|search, keyword
 |third|regex
 |====
-So, update the object created in step 2 in order to add the `results` option, as below:
+Then, update the object created in step 2 in order to add the `results` option, as below:
 [source, nim]
 ----
-var cmdParser = newCmdParser(
+var cmdlnParser = newCmdlnParser(
   results=("path",["search","keyword"],"regex"),
-  newCmdParam("path", options=BAN_MULTIPLE),
-  newCmdParam("search"),
-  newCmdParam("keyword"),
-  newCmdParam("regex", false, options=BAN_MULTIPLE)
+  newCmdlnParam("path", options=BAN_MULTIPLE),
+  newCmdlnParam("search"),
+  newCmdlnParam("keyword"),
+  newCmdlnParam("regex", false, options=BAN_MULTIPLE)
 )
 ----
-NOTE: `prefix` and `separator` can be also defined at this `newCmdParser` procedure (`pre` option and `sep` option).
+NOTE: `prefix` and `separator` can be also defined at this `newCmdlnParser` procedure (`pre` option and `sep` option).
 
 === step4
-Call `parse` procedure which `CmdParser` object has (as correctly, set it as the first argument). +
-And set command-line-parameters you want to parse at second argument.
+Call `parse` procedure which `CmdlnParser` object has (as correctly, set it as the first argument). +
+command-line-parameters you want to parse are second argument.
 [source, nim]
 ----
 let cmdlineParams = os.getCommandlineParams()
@@ -158,7 +156,7 @@ let res = cmdParser.parse(cmdlineParams)
 ----
 
 === step5
-If you come here, the parsing result should be assigned to the `res` variable. +
+If you come here, the parsing result shall be assigned to the `res` variable. +
 For example, if command-line-params are +
 `["--path:/var","--search:test","--keyword:test2","--regex:true"]` , +
 you can see +
@@ -171,22 +169,23 @@ you can see +
 import os
 import cmdlnparser
 
-var cmdParser = newCmdParser(
+var cmdlnParser = newCmdlnParser(
   results=("path",["search","keyword"],"regex"),
-  newCmdParam("path", options=BAN_MULTIPLE),
-  newCmdParam("search"),
-  newCmdParam("regex", false, options=BAN_MULTIPLE)
+  newCmdlnParam("path", options=BAN_MULTIPLE),
+  newCmdlnParam("search"),
+  newCmdlnParam("keyword"),
+  newCmdlnParam("regex", false, options=BAN_MULTIPLE)
 )
 let cmdlineParams = os.getCommandlineParams()
-let res = cmdParser.parse(cmdlineParams)
+let res = cmdlnParser.parse(cmdlineParams)
 ----
 
 
-== Non-standard required library
+== Special required library
 
-nothing for now
+Not applicable
 
 == TODO
 
 * [ ] improve type estimation
-* [x] corresponds to boolean type
+* [x] corresponds to Boolean type

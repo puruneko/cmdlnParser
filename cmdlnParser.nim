@@ -7,12 +7,19 @@ import typetraits
 import macros
 
 type
-  CmdOptions = enum
+  CmdlnOptions = enum
     BAN_MULTIPLE,
     LIMIT_MULTIPLE,
     USE_MULTIPLE_SEPARATOR
 
-  CmdParam*[T] = object
+  CmdlnParser = object
+    params: tuple
+    pre: string
+    sep: string
+    help: string
+    results: tuple
+
+  CmdlnParam*[T] = object
     keyword: string
     description: string
     parseProc: proc (p: string): T
@@ -34,7 +41,7 @@ macro getProcReturnType(p: proc): auto =
         res = $t[0].toStrLit
   parseStmt(res)
 
-proc newCmdParam*(keyword: string, desc: string, parseProc: proc): auto =
+proc newCmdParam*(keyword: string, desc="", parseProc: proc): auto =
   proc newCmdParamTypedesc[T](keyword: string, desc: string, parseProc: proc (p: string): T): CmdParam[T] =
     result.keyword = keyword
     result.description = desc
@@ -42,12 +49,12 @@ proc newCmdParam*(keyword: string, desc: string, parseProc: proc): auto =
     result.defaultFlag = false
   result = newCmdParamTypedesc[getProcReturnType(parseProc)](keyword, desc, parseProc)
 
-proc newCmdParam*(keyword: string, desc: string, parseProc: proc, default: not proc): auto =
+proc newCmdParam*(keyword: string, desc="", parseProc: proc, default: not proc): auto =
   result = newCmdParam(keyword, desc, parseProc)
   result.default = default
   result.defaultFlag = true
 
-proc newCmdParam*(keyword: string, desc: string, default: not proc): auto =
+proc newCmdParam*(keyword: string, desc="", default: not proc): auto =
   proc newCmdParamTypedesc[T](keyword:string, desc: string, default: T): CmdParam[T] =
     result.keyword = keyword
     result.description = desc
@@ -72,6 +79,15 @@ macro extractObjectElementInTuple(definedTpl: typed, objectElementName: static[s
     elemStrSeq.add($definedTpl.toStrLit & "[" & $itr & "]." & objectElementName)
   var command = "(" & elemStrSeq.join(",") & ")"
   parseStmt(command)
+
+proc newCmdlnParser(results: tuple = (), pre="--", sep=":", help="h", params: var tuple): CmdlnParser =
+  result.pre = pre
+  result.sep = sep
+  result.help = help
+  var typeSeq: seq[string] = @[]
+  for param in params:
+    discard
+
 
 proc parseCmdLineParams*(cmdParamSeq: seq[string], pre="--", sep=":", help="h", params: var tuple): auto =
   const tab = "\t"
