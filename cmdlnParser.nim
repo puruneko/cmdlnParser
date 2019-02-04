@@ -8,6 +8,7 @@ import macros
 
 type
   CmdlnOptions = enum
+    REQUIRED,
     BAN_MULTIPLE,
     LIMIT_MULTIPLE,
     USE_MULTIPLE_SEPARATOR
@@ -125,13 +126,24 @@ type
 proc toDummyType(p: string): DummyType[string] =
   result.value = p
 
+proc pcharProcessing(p: string): string =
+  "pchar=" & p
+
 if isMainModule:
-  var c: seq[string] = "**aaa@9 **aaa@10a **aaa@99 **h".split(" ")
-  var settings = (
-                  newCmdParam("aaa","first command",0),
-                  newCmdParam("mytype","second command",toDummyType),
-                  newCmdParam("mytype2","third command",toDummyType,toDummyType("default"))
-                  )
-  var val = c.parseCmdLineParams(pre="**",sep="@", params=settings)
+  var cmdlnParser = newCmdlnParser(
+    params=(
+      newCmdlnParam("pstr",defalut="test",output="strs"),
+      newCmdlnParam("pint",default=1,output="ints",options=[LIMIT_MULTIPLE,2]),
+      newCmdlnParam("pfloat",default=1.0,options=BAN_MULTIPLE),
+      newCmdlnParam("pchars",parseProc=pcharProcessing,output="strs"), # after processed by 'pcharProcessing', merge to strs result group
+      newCmdlnParam("pdoc",output="strs"),
+      newCmdlnParam("pdummy",parseProc=toDummyType,output="dummys") # if without default setting, option is set REQUIRED automatically.
+    ),
+    output=("ints","strs","dummys"),
+    pre="==",
+    sep="::",
+  )
+  var sampleInput: seq[string] = "==pfloat::2.0 ==pstr::a ==pchars::b ==pdummy::x".split(" ")
+  var res = cmdlnParser.parse(sampleInput)
   for x in val.fields:
     echo x
